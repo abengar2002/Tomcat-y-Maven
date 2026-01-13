@@ -1,8 +1,10 @@
 # Despliegue de Aplicaciones Java en Apache Tomcat con Maven
 
 **Alumno:** Antonio Benitez Garcia
+
 **Módulo:** Despliegue de Aplicaciones Web
-**Curso:** 2023/2024
+
+**Curso:** 2025-2026
 
 ---
 
@@ -86,3 +88,4 @@ Para la tarea final, desplegamos la aplicación "Rock-Paper-Scissors" siguiendo 
 Accedemos a la ruta desplegada (`/juego`) desde el navegador. La aplicación carga correctamente, mostrando la interfaz del juego "Roshambo", lo que confirma que el despliegue automatizado ha funcionado.
 
 ![Interfaz del juego funcionando](img/juego-funcionando.png)
+
