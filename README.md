@@ -2,106 +2,87 @@
 
 **Alumno:** Antonio Benitez Garcia
 **Módulo:** Despliegue de Aplicaciones Web
-**Curso:** 2025/2026
+**Curso:** 2023/2024
 
 ---
 
 ## 1. Introducción
 
-En esta práctica se documenta el proceso completo de configuración de un servidor de aplicaciones Apache Tomcat sobre una máquina virtual Debian 11. El objetivo final es automatizar el despliegue de aplicaciones web Java utilizando Maven, realizándolo primero con una aplicación de prueba básica y finalmente con la aplicación "Rock-Paper-Scissors".
+En esta práctica se documenta el proceso completo de configuración de un servidor de aplicaciones Apache Tomcat sobre una máquina virtual Debian. El objetivo es realizar dos tipos de despliegues: uno manual mediante la interfaz gráfica y otro automatizado utilizando Maven para la aplicación "Rock-Paper-Scissors".
 
 ---
 
-## 2. Preparación del Entorno (Java y Tomcat)
+## 2. Preparación del Entorno
 
-El primer paso para levantar el servidor es la instalación del Kit de Desarrollo de Java (OpenJDK), requisito indispensable para ejecutar Tomcat. Comprobamos la versión instalada para asegurar compatibilidad.
+### Instalación de Java y Tomcat
+El primer paso es la instalación del Kit de Desarrollo de Java (OpenJDK) y el servidor Tomcat 9.
 
 ![Verificación de la versión de Java](img/instalacion-java.png)
-
-A continuación, instalamos el servidor de aplicaciones Tomcat 9 desde los repositorios oficiales de Debian.
-
 ![Instalación del paquete Tomcat 9](img/instalacion-tomcat9.png)
 
-Por motivos de seguridad y buenas prácticas, creamos un grupo y un usuario específico (`tomcat`) para la ejecución del servicio, evitando así usar el usuario root.
+### Creación de Usuarios del Sistema
+Por seguridad, creamos un grupo y usuario específico para ejecutar el servicio.
 
 ![Creación de grupo y usuario para el servicio](img/grupotomcat.png)
 
-Una vez completada la instalación, verificamos que el servicio `tomcat9` se encuentra activo y en ejecución (`active/running`).
-
+Verificamos que el servicio está activo:
 ![Estado del servicio Tomcat](img/statustomcat.png)
 
 ---
 
-## 3. Configuración de Acceso Remoto
+## 3. Configuración de Acceso Remoto y Paneles
 
-Por defecto, Tomcat bloquea el acceso a los paneles de administración desde fuera de `localhost`. Para permitir la gestión desde nuestra máquina anfitriona (Windows), editamos el archivo `context.xml` permitiendo el acceso a todas las IPs y reiniciamos el servicio.
+### Habilitar Acceso Remoto
+Editamos el archivo `context.xml` para permitir conexiones desde fuera de `localhost` y reiniciamos el servicio.
 
 ![Edición de context.xml y reinicio del servicio](img/editcontextyrestart.png)
 
-Tras aplicar los cambios, comprobamos desde el navegador del anfitrión que podemos ver la página de bienvenida de Apache Tomcat ("It works!").
-
-![Página de bienvenida de Tomcat](img/tomcat-funciona.png)
-
----
-
-## 4. Gestión de Paneles de Administración
-
-Para poder desplegar aplicaciones, necesitamos acceso a los gestores gráficos de Tomcat (`host-manager` y `manager`). Configuramos los usuarios y roles en el archivo `tomcat-users.xml` y accedemos a los paneles para verificar los permisos.
-
-Acceso correcto al **Tomcat Virtual Host Manager**:
-
-![Vista del Host Manager](img/tomcat1-on.png)
-
-Detalle de la gestión de hosts virtuales:
-
-![Detalle del Host Manager](img/host-manager.png)
-
-Acceso al **Tomcat Web Application Manager**, donde gestionaremos las aplicaciones desplegadas:
+### Usuarios de Administración
+Configuramos el archivo `tomcat-users.xml` asignando los roles `manager-gui` y `manager-script` al usuario "alumno".
 
 ![Vista del Manager App](img/manager.png)
 
 ---
 
+## 4. Despliegue Manual mediante GUI
+
+Antes de usar Maven, realizamos un despliegue manual para verificar el funcionamiento del gestor de aplicaciones. 
+
+1. Accedemos al **Manager App**.
+2. En la sección "Desplegar", seleccionamos el archivo `.war` local (`tomcat1.war`) y pulsamos desplegar.
+
+Como se observa en la siguiente captura, la aplicación `/tomcat1` aparece correctamente listada en la tabla de aplicaciones y su estado es `Running: true`.
+
+![Resultado del despliegue manual en el Manager](img/tomcat1-desplegado.png)
+
+*(Nota: Esta captura demuestra que el despliegue manual se realizó con éxito y el servidor está listo para servir aplicaciones)*.
+
+---
+
 ## 5. Configuración de Maven y Despliegue de Prueba
 
-Instalamos Apache Maven en la máquina virtual, herramienta que usaremos para la construcción y despliegue del software.
+Instalamos Maven y configuramos las credenciales del servidor en el archivo `settings.xml` (o configuración del plugin) para permitir la automatización.
 
 ![Instalación y versión de Maven](img/mvn.png)
+![Configuración de credenciales](img/tomcat-deploy.png)
 
-Para que Maven pueda comunicarse con Tomcat, configuramos las credenciales del servidor (usuario `alumno` y contraseña) en el archivo `settings.xml` (o en la configuración del servidor del plugin).
-
-![Configuración de credenciales en XML](img/tomcat-deploy.png)
-
-### Primer Despliegue: Aplicación "Hola Mundo"
-
-Antes de pasar al juego, generamos una aplicación web básica de prueba (arquetipo `maven-archetype-webapp`) para verificar que el flujo de trabajo funciona.
+Generamos y desplegamos una aplicación básica ("Hola Mundo") para probar la conexión entre Maven y Tomcat.
 
 ![Generación de la app de prueba](img/generar-una-app.png)
-
-Verificamos que la aplicación de prueba se despliega y es accesible desde el navegador mostrando el "Hello World!".
-
 ![Aplicación de prueba funcionando](img/app-funciona.png)
 
 ---
 
-## 6. Despliegue Final: Rock-Paper-Scissors
+## 6. Despliegue Final Automatizado: Rock-Paper-Scissors
 
-Finalmente, procedemos con la tarea principal: el despliegue de la aplicación "Rock-Paper-Scissors".
+Para la tarea final, desplegamos la aplicación "Rock-Paper-Scissors" siguiendo estos pasos:
 
-1.  Clonamos el repositorio y cambiamos a la rama correcta.
-2.  Configuramos el `pom.xml` con el plugin de Tomcat 7.
-3.  Ejecutamos el comando de despliegue `mvn tomcat7:deploy`.
+1.  Clonado del repositorio GitHub y cambio a la rama `patch-1`.
+2.  Configuración del `pom.xml` añadiendo el plugin `tomcat7-maven-plugin`.
+3.  Ejecución del comando: `mvn tomcat7:deploy`.
 
-Como muestra la terminal, el proceso finalizó con éxito (**BUILD SUCCESS**).
+### Comprobación Final
 
-![Despliegue exitoso del juego en terminal](img/mvn tomcat7deploy.png)
-
-Si volvemos al gestor de aplicaciones de Tomcat (Manager App), podemos confirmar que la aplicación `/juego` aparece listada y en estado `Running` (Verdadero).
-
-![Aplicación listada en el Manager de Tomcat](img/tomcat1-desplegado.png)
-
-### Resultado Final
-
-Accedemos a la ruta desplegada (`/juego`) desde el navegador para confirmar que la aplicación funciona correctamente y podemos interactuar con ella.
+Accedemos a la ruta desplegada (`/juego`) desde el navegador. La aplicación carga correctamente, mostrando la interfaz del juego "Roshambo", lo que confirma que el despliegue automatizado ha funcionado.
 
 ![Interfaz del juego funcionando](img/juego-funcionando.png)
